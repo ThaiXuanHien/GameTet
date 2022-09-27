@@ -1,5 +1,6 @@
 package com.example.gametet
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gametet.databinding.ItemGiftBinding
 
-class GiftAdapter(val onClick : (value: Int, view: View) -> Unit) : ListAdapter<Gift, GiftAdapter.GiftVH>(GiftDiffCallBack()) {
+class GiftAdapter(var listGift: ArrayList<Gift>, val onClick : (value: Int, view: View) -> Unit) : RecyclerView.Adapter<GiftAdapter.GiftVH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GiftVH {
         val binding = ItemGiftBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -16,7 +17,8 @@ class GiftAdapter(val onClick : (value: Int, view: View) -> Unit) : ListAdapter<
 
     override fun onBindViewHolder(holder: GiftVH, position: Int) {
         with(holder){
-            with(getItem(position)){
+            with(listGift[position]){
+                binding.ivValueGift.setImageResource(R.drawable.front_gift)
                 binding.ivValueGift.setOnClickListener {
                     onClick(value, it)
                     setClickable(it, false)
@@ -36,5 +38,15 @@ class GiftAdapter(val onClick : (value: Int, view: View) -> Unit) : ListAdapter<
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(list: ArrayList<Gift>){
+        listGift = list
+        notifyDataSetChanged()
+    }
+
     inner class GiftVH(val binding: ItemGiftBinding) : RecyclerView.ViewHolder(binding.root)
+
+    override fun getItemCount(): Int {
+        return listGift.size
+    }
 }

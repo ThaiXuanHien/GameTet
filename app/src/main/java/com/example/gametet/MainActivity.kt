@@ -3,38 +3,51 @@ package com.example.gametet
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.gametet.R.drawable
 import com.example.gametet.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter: GiftAdapter by lazy { GiftAdapter(::onClick) }
+    private var list: ArrayList<Gift>? = null
+    private var mediaPlayer : MediaPlayer? = null
+    private lateinit var adapter: GiftAdapter
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        getListGift()
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.nhac_nen);
+        mediaPlayer?.start()
+
         binding.run {
-            rvGift.layoutManager = GridLayoutManager(root.context, 2, GridLayoutManager.VERTICAL, false)
+            rvGift.layoutManager =
+                GridLayoutManager(root.context, 2, GridLayoutManager.VERTICAL, false)
+            adapter = GiftAdapter(list?.shuffled() as ArrayList<Gift>, ::onClick)
             rvGift.adapter = adapter
-            adapter.submitList(getListGift().shuffled())
         }
 
         binding.ivReset.setOnClickListener {
-            adapter.submitList(getListGift().shuffled())
+            mediaPlayer?.stop()
+            mediaPlayer?.prepare()
+            mediaPlayer?.start()
+            adapter.updateList(list?.shuffled() as ArrayList<Gift>)
         }
     }
 
-    private fun onClick(value: Int, view: View){
+    private fun onClick(value: Int, view: View) {
         val oa1 = ObjectAnimator.ofFloat(view, "scaleX", 1f, 0f)
         val oa2 = ObjectAnimator.ofFloat(view, "scaleX", 0f, 1f)
         oa1.duration = 300
@@ -51,14 +64,17 @@ class MainActivity : AppCompatActivity() {
         oa1.start()
     }
 
-    private fun getListGift() = listOf(
-            Gift(value = drawable.muoi_nghin),
-            Gift(value = drawable.hai_muoi_nghin),
-            Gift(value = drawable.nam_muoi_nghin),
-            Gift(value = drawable.mot_tram_nghin),
-            Gift(value = drawable.hai_tram_nghin),
-            Gift(value = drawable.nam_tram_nghin),
+    private fun getListGift() {
+        list?.clear()
+        list = arrayListOf(
+            Gift(value = R.drawable.muoi_nghin),
+            Gift(value = R.drawable.hai_muoi_nghin),
+            Gift(value = R.drawable.nam_muoi_nghin),
+            Gift(value = R.drawable.mot_tram_nghin),
+            Gift(value = R.drawable.hai_tram_nghin),
+            Gift(value = R.drawable.nam_tram_nghin),
         )
+    }
 
     override fun onBackPressed() {
         super.onBackPressed()
